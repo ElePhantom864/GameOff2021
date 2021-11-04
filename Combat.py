@@ -26,8 +26,9 @@ vec = pg.math.Vector2
 
 
 class Player(pg.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, game):
         pg.sprite.Sprite.__init__(self)
+        self.game = game
         self.image = pg.Surface((30, 40))
         self.image.fill(YELLOW)
         self.rect = self.image.get_rect()
@@ -35,6 +36,7 @@ class Player(pg.sprite.Sprite):
         self.pos = vec(WIDTH / 2, HEIGHT - 40)
         self.vel = vec(0, 0)
         self.acc = vec(0, 0)
+        self.current_ability = 'None'
 
     def update(self):
         self.acc = vec(0, 0)
@@ -43,6 +45,14 @@ class Player(pg.sprite.Sprite):
             self.acc.x = -PLAYER_ACC
         if keys[pg.K_RIGHT]:
             self.acc.x = PLAYER_ACC
+        if keys[pg.K_UP] and pg.sprite.spritecollide(self, self.game.enemies, False):
+            hits = pg.sprite.spritecollide(self, self.game.enemies, False)
+            for hit in hits:
+                self.current_ability = hit.ability
+                self.image = hit.image
+                hit.kill()
+        if keys[pg.K_SPACE]:
+            print(self.current_ability)
 
         # apply friction
         self.acc += self.vel * PLAYER_FRICTION
@@ -59,10 +69,10 @@ class Player(pg.sprite.Sprite):
 
 
 class Enemy(pg.sprite.Sprite):
-    def __init__(self, ability, x):
+    def __init__(self, ability, x, color):
         pg.sprite.Sprite.__init__(self)
         self.image = pg.Surface((30, 40))
-        self.image.fill(RED)
+        self.image.fill(color)
         self.rect = self.image.get_rect()
         self.rect.center = (x, HEIGHT - 40)
         self.pos = vec(x, HEIGHT - 40)
@@ -83,11 +93,14 @@ class Game:
         # start a new game
         self.all_sprites = pg.sprite.Group()
         self.enemies = pg.sprite.Group()
-        self.player = Player()
-        enemy = Enemy('mantis', 200)
+        self.player = Player(self)
+        enemy = Enemy('mantis', 200, RED)
+        enemy2 = Enemy('cockroach', 800, GREEN)
         self.all_sprites.add(self.player)
         self.all_sprites.add(enemy)
+        self.all_sprites.add(enemy2)
         self.enemies.add(enemy)
+        self.enemies.add(enemy2)
         self.run()
 
     def run(self):
