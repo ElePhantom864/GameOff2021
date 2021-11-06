@@ -51,7 +51,7 @@ class Game:
         self.enemies = pg.sprite.Group()
         self.semi_walls = pg.sprite.Group()
         self.player = spr.Player(self, 100, 100)
-        self.load_map('Test.tmx')
+        self.load_map('Test2.tmx')
         self.run()
 
     def run(self):

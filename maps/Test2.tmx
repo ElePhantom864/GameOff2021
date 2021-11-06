@@ -27,12 +27,12 @@
     <property name="solid" type="bool" value="true"/>
    </properties>
   </object>
-  <object id="3" name="wall" x="176" y="288" width="128" height="8">
+  <object id="3" name="wall" x="192" y="288" width="96" height="8">
    <properties>
     <property name="solid" type="bool" value="false"/>
    </properties>
   </object>
-  <object id="4" name="wall" x="80" y="384" width="96" height="24">
+  <object id="4" name="wall" x="64" y="384" width="128" height="24">
    <properties>
     <property name="solid" type="bool" value="false"/>
    </properties>
