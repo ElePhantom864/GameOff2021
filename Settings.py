@@ -8,6 +8,9 @@ class Direction(Enum):
     DOWN = 'Down'
     LEFT = 'Left'
     RIGHT = 'Right'
+    NONE = 'None'
+    WALK_RIGHT = 'Right'
+    WALK_LEFT = 'Left'
 
 
 # game options/settings
@@ -18,12 +21,25 @@ HEIGHT = TILE_SIZE * 16
 FPS = 60
 
 # Player properties
-PLAYER_ACC = 0.5
-PLAYER_JUMP_ACC = -4.0
-PLAYER_GRAVITY = 0.5
-PLAYER_HIT_RECT = pg.Rect(0, 0, 30, 40)
-PLAYER_MAX_FALL = 1.0
-PLAYER_FRICTION = -0.12
+BUGS = {
+    'Parasite': {
+        'ACC': 0.5,
+        'JUMP_ACC': -4.0,
+        'GRAVITY': 0.5,
+        'HIT_RECT': pg.Rect(0, 0, 30, 40),
+        'MAX_FALL': 1.0,
+        'FRICTION': -0.12,
+    },
+    'Mantis': {
+        'ACC': 0.75,
+        'JUMP_ACC': -4.0,
+        'GRAVITY': 0.5,
+        'HIT_RECT': pg.Rect(0, 0, 32, 32),
+        'MAX_FALL': 0.5,
+        'FRICTION': -0.12,
+    }
+}
+
 
 # define colors
 WHITE = (255, 255, 255)

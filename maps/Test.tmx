@@ -75,6 +75,6 @@
     <property name="solid" type="bool" value="true"/>
    </properties>
   </object>
-  <object id="12" name="enemy" x="960" y="96" width="32" height="64"/>
+  <object id="12" name="Mantis" type="mutated" x="960" y="128" width="32" height="32"/>
  </objectgroup>
 </map>

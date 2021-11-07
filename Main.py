@@ -14,6 +14,7 @@ class Game:
         self.screen = pg.display.set_mode(
             (s.WIDTH, s.HEIGHT), flags=pg.RESIZABLE | pg.SCALED | pg.SRCALPHA | pg.HWACCEL)
         self.clock = pg.time.Clock()
+        self.all_images = {}
         self.running = True
         self.load_data()
 
@@ -21,6 +22,7 @@ class Game:
         # load data needed at start
         self.game_folder = path.dirname(__file__)
         self.map_folder = path.join(self.game_folder, 'maps')
+        self.img_folder = path.join(self.game_folder, 'img')
 
     def load_map(self, map_name):
         # load a new map
@@ -39,19 +41,21 @@ class Game:
                     self, tile_object.x, tile_object.y, tile_object.width,
                     tile_object.height, tile_object.properties['solid'])
                 self.objects_by_id[tile_object.id] = obstacle
-            if tile_object.name == 'enemy':
-                obstacle = spr.Enemy(
-                    self, obj_center.x, obj_center.y)
+            if tile_object.type == 'mutated':
+                self.load_images(tile_object.name)
+                obstacle = spr.SpecialEnemy(
+                    self, obj_center.x, obj_center.y, tile_object.name)
                 self.objects_by_id[tile_object.id] = obstacle
 
     def new(self):
         # start a new game
         self.all_sprites = pg.sprite.Group()
         self.walls = pg.sprite.Group()
-        self.enemies = pg.sprite.Group()
+        self.special_enemies = pg.sprite.Group()
         self.semi_walls = pg.sprite.Group()
+        self.load_map('Test.tmx')
+        self.load_images('Parasite')
         self.player = spr.Player(self, 100, 100)
-        self.load_map('Test2.tmx')
         self.run()
 
     def run(self):
@@ -89,6 +93,20 @@ class Game:
         self.screen.blit(self.map_top_img, self.camera.apply_rect(self.map_rect))
         # *after* drawing everything, flip the display
         pg.display.flip()
+
+    def load_images(self, bug_name):
+        if bug_name not in self.all_images:
+            self.all_images[bug_name] = {}
+            for direction in [s.Direction.LEFT, s.Direction.RIGHT]:
+                self.all_images[bug_name][direction] = []
+                for i in [1, 2, 3, 4]:
+                    img = bug_name + direction.value + str(i) + ".png"
+                    try:
+                        loaded_image = pg.image.load(
+                            path.join(self.img_folder, img)).convert_alpha()
+                        self.all_images[bug_name][direction].append(loaded_image)
+                    except FileNotFoundError as e:
+                        print("Mob image is missing", e)
 
     def show_start_screen(self):
         # game splash/start screen
