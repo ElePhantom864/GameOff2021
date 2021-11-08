@@ -86,6 +86,7 @@ class Game:
     def draw(self):
         # Game Loop - draw
         self.screen.blit(self.map_bottom_img, self.camera.apply_rect(self.map_rect))
+        self.player.draw_ui()
         for sprite in self.all_sprites:
             self.screen.blit(sprite.image, self.camera.apply(sprite))
             # if self.draw_debug:
@@ -97,7 +98,7 @@ class Game:
     def load_images(self, bug_name):
         if bug_name not in self.all_images:
             self.all_images[bug_name] = {}
-            for direction in [s.Direction.LEFT, s.Direction.RIGHT]:
+            for direction in [s.Animation.WALK_LEFT, s.Animation.WALK_RIGHT, s.Animation.IDLE_LEFT, s.Animation.IDLE_RIGHT]:
                 self.all_images[bug_name][direction] = []
                 for i in [1, 2, 3, 4]:
                     img = bug_name + direction.value + str(i) + ".png"

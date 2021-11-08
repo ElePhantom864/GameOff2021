@@ -3,14 +3,19 @@ from enum import Enum
 
 
 # For autocorrection
-class Direction(Enum):
-    UP = 'Up'
-    DOWN = 'Down'
-    LEFT = 'Left'
-    RIGHT = 'Right'
-    NONE = 'None'
+class Animation(Enum):
     WALK_RIGHT = 'Right'
     WALK_LEFT = 'Left'
+    IDLE_LEFT = 'LeftIdle'
+    IDLE_RIGHT = 'RightIdle'
+
+
+class Attacks(Enum):
+    UP_A = 'UpA'
+    DOWN_A = 'DownA'
+    LEFT_A = 'LeftA'
+    RIGHT_A = 'RightA'
+    NONE = 'None'
 
 
 # game options/settings
@@ -26,9 +31,10 @@ BUGS = {
         'ACC': 0.5,
         'JUMP_ACC': -4.0,
         'GRAVITY': 0.5,
-        'HIT_RECT': pg.Rect(0, 0, 30, 40),
+        'HIT_RECT': pg.Rect(0, 0, 20, 32),
         'MAX_FALL': 1.0,
         'FRICTION': -0.12,
+        'MAX_STAMINA': 0,
     },
     'Mantis': {
         'ACC': 0.75,
@@ -37,6 +43,7 @@ BUGS = {
         'HIT_RECT': pg.Rect(0, 0, 32, 32),
         'MAX_FALL': 0.5,
         'FRICTION': -0.12,
+        'MAX_STAMINA': 100
     }
 }
 
