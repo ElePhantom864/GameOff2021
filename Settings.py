@@ -15,7 +15,6 @@ class Attacks(Enum):
     DOWN_A = 'DownA'
     LEFT_A = 'LeftA'
     RIGHT_A = 'RightA'
-    NONE = 'None'
 
 
 # game options/settings
@@ -25,7 +24,7 @@ WIDTH = TILE_SIZE * 24
 HEIGHT = TILE_SIZE * 16
 FPS = 60
 
-# Player properties
+# Bug properties
 BUGS = {
     'Parasite': {
         'ACC': 0.5,
@@ -35,6 +34,7 @@ BUGS = {
         'MAX_FALL': 1.0,
         'FRICTION': -0.12,
         'MAX_STAMINA': 0,
+        'ANIMATION': 100
     },
     'Mantis': {
         'ACC': 0.75,
@@ -43,10 +43,34 @@ BUGS = {
         'HIT_RECT': pg.Rect(0, 0, 32, 32),
         'MAX_FALL': 0.5,
         'FRICTION': -0.12,
-        'MAX_STAMINA': 100
+        'MAX_STAMINA': 100,
+        'ANIMATION': 50
     }
 }
 
+# Attack properties and Comboes
+Attack_Properties = {
+    Attacks.RIGHT_A: {
+        'DURATION': 30,
+        'ANIMATION': Attacks.RIGHT_A,
+        'SPEED': 50
+    },
+    Attacks.LEFT_A: {
+        'DURATION': 30,
+        'ANIMATION': Attacks.LEFT_A,
+        'SPEED': 50
+    },
+    Attacks.DOWN_A: {
+        'DURATION': 30,
+        'ANIMATION': Attacks.DOWN_A,
+        'SPEED': 50
+    },
+    Attacks.UP_A: {
+        'DURATION': 30,
+        'ANIMATION': Attacks.UP_A,
+        'SPEED': 50
+    }
+}
 
 # define colors
 WHITE = (255, 255, 255)
