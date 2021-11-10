@@ -193,32 +193,32 @@
     <property name="solid" type="bool" value="false"/>
    </properties>
   </object>
-  <object id="29" name="Mantis" type="mutated" x="224" y="576" width="32" height="32">
+  <object id="29" name="Roach" type="mutated" x="192" y="608" width="32" height="32">
    <properties>
     <property name="solid" type="bool" value="true"/>
    </properties>
   </object>
-  <object id="30" name="Mantis" type="enemy" x="384" y="480" width="32" height="32">
+  <object id="30" name="Roach" type="enemy" x="384" y="480" width="32" height="32">
    <properties>
     <property name="solid" type="bool" value="true"/>
    </properties>
   </object>
-  <object id="31" name="Mantis" type="mutated" x="576" y="224" width="32" height="32">
+  <object id="31" name="Roach" type="mutated" x="576" y="224" width="32" height="32">
    <properties>
     <property name="solid" type="bool" value="true"/>
    </properties>
   </object>
-  <object id="32" name="Mantis" type="mutated" x="840" y="512" width="32" height="32">
+  <object id="32" name="Roach" type="mutated" x="840" y="512" width="32" height="32">
    <properties>
     <property name="solid" type="bool" value="true"/>
    </properties>
   </object>
-  <object id="33" name="Mantis" type="mutated" x="1240" y="704" width="32" height="32">
+  <object id="33" name="Roach" type="mutated" x="1240" y="704" width="32" height="32">
    <properties>
     <property name="solid" type="bool" value="true"/>
    </properties>
   </object>
-  <object id="34" name="Mantis" type="mutated" x="1232" y="384" width="32" height="32">
+  <object id="34" name="Roach" type="mutated" x="1232" y="384" width="32" height="32">
    <properties>
     <property name="solid" type="bool" value="true"/>
    </properties>

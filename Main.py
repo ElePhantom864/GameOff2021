@@ -42,12 +42,10 @@ class Game:
                     tile_object.height, tile_object.properties['solid'])
                 self.objects_by_id[tile_object.id] = obstacle
             if tile_object.type == 'enemy':
-                self.load_images(tile_object.name)
                 enemy = spr.Enemy(
                     self, obj_center.x, obj_center.y, tile_object.name)
                 self.objects_by_id[tile_object.id] = enemy
             if tile_object.type == 'mutated':
-                self.load_images(tile_object.name)
                 enemy = spr.SpecialEnemy(
                     self, obj_center.x, obj_center.y, tile_object.name)
                 self.objects_by_id[tile_object.id] = enemy
@@ -56,11 +54,13 @@ class Game:
         # start a new game
         self.all_sprites = pg.sprite.Group()
         self.walls = pg.sprite.Group()
+        self.projectiles = pg.sprite.Group()
         self.enemies = pg.sprite.Group()
         self.special_enemies = pg.sprite.Group()
         self.semi_walls = pg.sprite.Group()
+        for image in s.Loading:
+            self.load_images(image)
         self.load_map('Test.tmx')
-        self.load_images('Parasite')
         self.player = spr.Player(self, 100, 100)
         self.run()
 
@@ -77,6 +77,9 @@ class Game:
         # Game Loop - Update
         self.camera.update(self.player)
         self.all_sprites.update()
+        # hits = pg.sprite.spritecollide(self.player, self.projectiles, False)
+        # # for hit in hits:
+        # #     hit.kill()
 
     def events(self):
         # Game Loop - events
@@ -104,7 +107,7 @@ class Game:
     def load_images(self, bug_name):
         if bug_name not in self.all_images:
             self.all_images[bug_name] = {}
-            for direction in [s.Animation.WALK_LEFT, s.Animation.WALK_RIGHT, s.Animation.IDLE_LEFT, s.Animation.IDLE_RIGHT, s.Attacks.RIGHT_A, s.Attacks.LEFT_A, s.Attacks.UP_A, s.Attacks.DOWN_A]:
+            for direction in s.Animation:
                 self.all_images[bug_name][direction] = []
                 for i in [1, 2, 3, 4]:
                     mob_folder = path.join(self.img_folder, bug_name)
