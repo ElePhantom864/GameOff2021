@@ -1,5 +1,6 @@
 import pygame as pg
 from enum import Enum
+vec = pg.math.Vector2
 
 
 # For autocorrection
@@ -10,6 +11,7 @@ class Animation(Enum):
     DOWN_A = 'DownA'
     FRONT_A = 'FrontA'
     SPECIAL_A = 'SpecialA'
+    HIT = 'Hit'
 
 
 # game options/settings
@@ -23,15 +25,21 @@ FPS = 60
 Roach_Attacks = {
     Animation.FRONT_A: {
         'DURATION': 30,
-        'SPEED': 100
+        'SPEED': 100,
+        'HIT_RECT': pg.Rect(0, 0, 20, 10),
+        'OFFSET': vec(10, 0)
     },
     Animation.DOWN_A: {
         'DURATION': 30,
-        'SPEED': 100
+        'SPEED': 100,
+        'HIT_RECT': pg.Rect(0, 0, 10, 20),
+        'OFFSET': vec(5, 10)
     },
     Animation.UP_A: {
         'DURATION': 30,
-        'SPEED': 100
+        'SPEED': 100,
+        'HIT_RECT': pg.Rect(0, 0, 10, 20),
+        'OFFSET': vec(5, -10)
     },
     Animation.SPECIAL_A: {
         'DURATION': 60,
@@ -50,7 +58,9 @@ BUGS = {
         'MAX_FALL': 1.0,
         'FRICTION': -0.12,
         'MAX_STAMINA': 0,
-        'ANIMATION': 150
+        'ANIMATION': 150,
+        'RECOVERY': 10,
+        'STUN': 100
     },
     'Roach': {
         'ACC': 0.4,
@@ -61,7 +71,9 @@ BUGS = {
         'FRICTION': -0.12,
         'MAX_STAMINA': 100,
         'ANIMATION': 200,
-        'ATTACKS': Roach_Attacks
+        'ATTACKS': Roach_Attacks,
+        'RECOVERY': 60,
+        'STUN': 100
     }
 }
 
