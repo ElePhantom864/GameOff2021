@@ -27,28 +27,34 @@ Roach_Attacks = {
         'DURATION': 30,
         'SPEED': 100,
         'HIT_RECT': pg.Rect(0, 0, 20, 10),
-        'OFFSET': vec(10, 0)
+        'OFFSET': vec(10, 0),
+        'DAMAGE': 50
     },
     Animation.DOWN_A: {
         'DURATION': 30,
         'SPEED': 100,
         'HIT_RECT': pg.Rect(0, 0, 10, 20),
-        'OFFSET': vec(5, 10)
+        'OFFSET': vec(5, 10),
+        'DAMAGE': 50
     },
     Animation.UP_A: {
         'DURATION': 30,
         'SPEED': 100,
         'HIT_RECT': pg.Rect(0, 0, 10, 20),
-        'OFFSET': vec(5, -10)
+        'OFFSET': vec(5, -10),
+        'DAMAGE': 50
     },
     Animation.SPECIAL_A: {
         'DURATION': 60,
         'SPEED': 500,
-        'COST': 20
+        'COST': 20,
+        'DAMAGE': 100
     }
 }
 
-# Bug properties
+# General Properties
+HEALTH = 1000
+PIT_DAMAGE = 100
 BUGS = {
     'Parasite': {
         'ACC': 0.5,
@@ -73,7 +79,8 @@ BUGS = {
         'ANIMATION': 200,
         'ATTACKS': Roach_Attacks,
         'RECOVERY': 60,
-        'STUN': 100
+        'STUN': 100,
+        'HEALTH': 500
     }
 }
 
