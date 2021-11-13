@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.4" tiledversion="1.4.2" orientation="orthogonal" renderorder="right-down" width="24" height="16" tilewidth="32" tileheight="32" infinite="0" nextlayerid="4" nextobjectid="56">
+<map version="1.4" tiledversion="1.4.2" orientation="orthogonal" renderorder="right-down" width="24" height="16" tilewidth="32" tileheight="32" infinite="0" nextlayerid="4" nextobjectid="67">
  <tileset firstgid="1" source="modifiedspringstar.tsx"/>
  <layer id="1" name="Tile Layer 1" width="24" height="16">
   <data encoding="csv">
@@ -47,27 +47,17 @@
     <property name="solid" type="bool" value="true"/>
    </properties>
   </object>
-  <object id="23" name="Roach" type="mutated" x="160" y="288" width="32" height="64">
-   <properties>
-    <property name="solid" type="bool" value="true"/>
-   </properties>
-  </object>
-  <object id="24" name="Roach" type="mutated" x="96" y="288" width="32" height="64">
-   <properties>
-    <property name="solid" type="bool" value="true"/>
-   </properties>
-  </object>
   <object id="48" name="wall" x="-32" y="0" width="32" height="480">
    <properties>
     <property name="solid" type="bool" value="true"/>
    </properties>
   </object>
-  <object id="50" name="Test.tmx" type="Teleport" x="768" y="0" width="8" height="480">
+  <object id="50" name="Test.tmx" type="Teleport" x="800" y="0" width="8" height="480">
    <properties>
     <property name="playerLocation" value="player"/>
    </properties>
   </object>
-  <object id="51" name="player" x="32" y="128" width="32" height="32"/>
+  <object id="51" name="player" x="32" y="64" width="32" height="32"/>
   <object id="52" name="wall" x="0" y="352" width="288" height="96">
    <properties>
     <property name="solid" type="bool" value="true"/>
@@ -82,6 +72,44 @@
    <properties>
     <property name="destx" type="int" value="240"/>
     <property name="desty" type="int" value="288"/>
+   </properties>
+  </object>
+  <object id="56" name="Arena" x="416" y="0" width="352" height="352">
+   <properties>
+    <property name="enemycount" value="2,5"/>
+    <property name="enemytypes" value="Roach;Roach"/>
+    <property name="location0" type="object" value="57"/>
+    <property name="location1" type="object" value="60"/>
+    <property name="location2" type="object" value="61"/>
+    <property name="location3" type="object" value="59"/>
+    <property name="location4" type="object" value="58"/>
+    <property name="locations" type="int" value="5"/>
+    <property name="waves" type="int" value="2"/>
+   </properties>
+  </object>
+  <object id="57" x="464" y="304">
+   <point/>
+  </object>
+  <object id="58" x="720" y="304">
+   <point/>
+  </object>
+  <object id="59" x="592" y="240">
+   <point/>
+  </object>
+  <object id="60" x="464" y="144">
+   <point/>
+  </object>
+  <object id="61" x="720" y="144">
+   <point/>
+  </object>
+  <object id="62" name="Roach" type="mutated" x="96" y="288" width="32" height="64">
+   <properties>
+    <property name="solid" type="bool" value="true"/>
+   </properties>
+  </object>
+  <object id="64" name="Test.tmx" type="Teleport" x="768" y="352" width="32" height="128">
+   <properties>
+    <property name="playerLocation" value="player"/>
    </properties>
   </object>
  </objectgroup>

@@ -70,10 +70,6 @@ class Game:
                     tile_object.height, tile_object.properties['destx'],
                     tile_object.properties['desty'])
                 self.objects_by_id[tile_object.id] = pit
-            if tile_object.type == 'enemy':
-                enemy = spr.Enemy(
-                    self, obj_center.x, obj_center.y, tile_object.name, False)
-                self.objects_by_id[tile_object.id] = enemy
             if tile_object.type == 'mutated':
                 enemy = spr.Enemy(
                     self, obj_center.x, obj_center.y, tile_object.name)
@@ -83,6 +79,18 @@ class Game:
                     self, tile_object.x, tile_object.y,
                     tile_object.width, tile_object.height,
                     tile_object.name, tile_object.properties['playerLocation'])
+            if tile_object.name == 'Arena':
+                count = tile_object.properties['enemycount'].split(',')
+                types = tile_object.properties['enemytypes'].split(';')
+                locations = []
+                for number in range(tile_object.properties['locations']):
+                    name = 'location' + str(number)
+                    location = self.map.tmxdata.get_object_by_id(tile_object.properties[name])
+                    locations.append(vec(location.x, location.y))
+                spr.Arena(self, tile_object.x, tile_object.y,
+                          tile_object.width, tile_object.height,
+                          tile_object.properties['waves'], count,
+                          types, locations)
 
     def new(self):
         # start a new game
@@ -117,7 +125,9 @@ class Game:
         for hit in hits:
             if not hit.friendly:
                 self.player.hit(hit.damage)
-                hit.kill()
+                hit.hits -= 1
+                if hit.hits <= 0:
+                    hit.kill()
         hits = pg.sprite.spritecollide(self.player, self.pits, False)
         for hit in hits:
             self.player.hit(s.PIT_DAMAGE)
@@ -149,10 +159,12 @@ class Game:
         self.screen.blit(self.map_top_img, self.camera.apply_rect(self.map_rect))
         self.player.draw_ui()
         # for debug purposes
-        for rect in self.debug_rects:
-            surface = pg.Surface((rect.width, rect.height))
-            self.screen.blit(surface, self.camera.apply_rect(rect))
-        # *after* drawing everything, flip the display
+        # surface = pg.Surface((self.player.hit_rect.width, self.player.hit_rect.height))
+        # self.screen.blit(surface, self.camera.apply_rect(self.player.hit_rect))
+        # for rect in self.debug_rects:
+        #     surface = pg.Surface((rect.width, rect.height))
+        #     self.screen.blit(surface, self.camera.apply_rect(rect))
+        # *after * drawing everything, flip the display
         pg.display.flip()
 
     def load_images(self, bug_name):
@@ -160,7 +172,7 @@ class Game:
             self.all_images[bug_name] = {}
             for direction in s.Animation:
                 self.all_images[bug_name][direction] = []
-                for i in [1, 2, 3]:
+                for i in [1, 2, 3, 4, 5, 6]:
                     mob_folder = path.join(self.img_folder, bug_name)
                     img = bug_name + direction.value + str(i) + ".png"
                     try:
