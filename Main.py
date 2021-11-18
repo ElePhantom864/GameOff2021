@@ -1,9 +1,8 @@
 import pygame as pg
-from pygame.constants import K_g
 import Settings as s
 import Sprite as spr
 from os import path
-from Display import TiledMap, Camera
+from Display import TiledMap, Camera, collide_hit_rect
 vec = pg.math.Vector2
 
 
@@ -46,6 +45,11 @@ class Game:
         self.camera = Camera(self.map.width, self.map.height)
         self.map_top_img, self.map_bottom_img = self.map.make_map()
         self.map_rect = self.map_bottom_img.get_rect()
+        background = pg.image.load(path.join(self.img_folder, 'tree_background.png'))
+        self.bgSurface = pg.Surface((self.map.width, self.map.height))
+        for y in range(0, self.map.height, 512):
+            for x in range(0, self.map.width, 768):
+                self.bgSurface.blit(background, (x, y))
         if 'music' in self.map.tmxdata.properties and self.current_music != self.map.tmxdata.properties['music']:
             # Music Loading
             pg.mixer.music.fadeout(1000)
@@ -65,15 +69,28 @@ class Game:
                     tile_object.height, tile_object.properties['solid'])
                 self.objects_by_id[tile_object.id] = obstacle
             if tile_object.name == 'pit':
+                coord = self.map.tmxdata.get_object_by_id(tile_object.properties['destination'])
+                dest = vec(coord.x, coord.y)
                 pit = spr.Pit(
                     self, tile_object.x, tile_object.y, tile_object.width,
-                    tile_object.height, tile_object.properties['destx'],
-                    tile_object.properties['desty'])
+                    tile_object.height, dest)
                 self.objects_by_id[tile_object.id] = pit
             if tile_object.type == 'mutated':
                 enemy = spr.Enemy(
                     self, obj_center.x, obj_center.y, tile_object.name)
                 self.objects_by_id[tile_object.id] = enemy
+            if tile_object.name == 'turret':
+                # self, game, health, damage, speed, target=None, die_on_impact=True
+                health = tile_object.properties['health']
+                damage = tile_object.properties['damage']
+                try:
+                    target = tile_object.properties['target']
+                except KeyError:
+                    target = self.player.pos
+                speed = tile_object.properties['speed']
+                die_on_impact = tile_object.properties['die']
+                turret = spr.Turret(self, obj_center.x, obj_center.y, health, damage, speed, target, die_on_impact)
+                self.objects_by_id[tile_object.id] = turret
             if tile_object.type == 'Teleport':
                 spr.Teleport(
                     self, tile_object.x, tile_object.y,
@@ -101,11 +118,12 @@ class Game:
         self.semi_walls = pg.sprite.Group()
         self.teleports = pg.sprite.Group()
         self.pits = pg.sprite.Group()
+        self.arena_enemies = pg.sprite.Group()
         for image in s.Loading:
             self.load_images(image)
         self.current_music = None
         self.player = spr.Player(self, 100, 100)
-        self.load_map('small.tmx', 'player')
+        self.load_map('test.tmx', 'player')
         self.run()
 
     def run(self):
@@ -121,18 +139,18 @@ class Game:
         # Game Loop - Update
         self.camera.update(self.player)
         self.all_sprites.update()
-        hits = pg.sprite.spritecollide(self.player, self.projectiles, False)
+        hits = pg.sprite.spritecollide(self.player, self.projectiles, False, collide_hit_rect)
         for hit in hits:
             if not hit.friendly:
                 self.player.hit(hit.damage)
                 hit.hits -= 1
                 if hit.hits <= 0:
                     hit.kill()
-        hits = pg.sprite.spritecollide(self.player, self.pits, False)
+        hits = pg.sprite.spritecollide(self.player, self.pits, False, collide_hit_rect)
         for hit in hits:
             self.player.hit(s.PIT_DAMAGE)
-            self.player.set_pos(hit.destinationx, hit.destinationy)
-        hits = pg.sprite.spritecollide(self.player, self.teleports, False)
+            self.player.set_pos(hit.destination.x, hit.destination.y)
+        hits = pg.sprite.spritecollide(self.player, self.teleports, False, collide_hit_rect)
         for hit in hits:
             self.load_map(hit.destination, hit.location)
             return
@@ -153,6 +171,7 @@ class Game:
 
     def draw(self):
         # Game Loop - draw
+        self.screen.blit(self.bgSurface, self.camera.apply_rect(self.map_rect, parallax=(6, 6)))
         self.screen.blit(self.map_bottom_img, self.camera.apply_rect(self.map_rect))
         for sprite in self.all_sprites:
             self.screen.blit(sprite.image, self.camera.apply(sprite))
@@ -160,7 +179,6 @@ class Game:
         self.player.draw_ui()
         # for debug purposes
         # surface = pg.Surface((self.player.hit_rect.width, self.player.hit_rect.height))
-        # self.screen.blit(surface, self.camera.apply_rect(self.player.hit_rect))
         # for rect in self.debug_rects:
         #     surface = pg.Surface((rect.width, rect.height))
         #     self.screen.blit(surface, self.camera.apply_rect(rect))

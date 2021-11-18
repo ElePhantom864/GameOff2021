@@ -34,7 +34,7 @@ class TiledMap:
 
     def make_map(self):
         top_surface = pg.Surface((self.width, self.height), pg.SRCALPHA)
-        bottom_surface = pg.Surface((self.width, self.height))
+        bottom_surface = pg.Surface((self.width, self.height), pg.SRCALPHA)
         self.render(top_surface, bottom_surface)
         return top_surface, bottom_surface
 
@@ -48,8 +48,9 @@ class Camera:
     def apply(self, entity):
         return entity.rect.move(self.camera.topleft)
 
-    def apply_rect(self, rect):
-        return rect.move(self.camera.topleft)
+    def apply_rect(self, rect, parallax=(1, 1)):
+        move_to = (self.camera.topleft[0] / parallax[0], self.camera.topleft[1] / parallax[1])
+        return rect.move(move_to)
 
     def apply_point(self, point):
         return vec(point[0] - abs(self.camera.topleft[0]),

@@ -44,8 +44,8 @@ Roach_Attacks = {
     Animation.UP_A: {
         'DURATION': 20,
         'SPEED': 100,
-        'HIT_RECT': pg.Rect(0, 0, 20, 40),
-        'OFFSET': vec(10, -10),
+        'HIT_RECT': pg.Rect(0, 0, 5, 40),
+        'OFFSET': vec(15, -10),
         'DAMAGE': 10,
         'SOUND': 'RoachPunch'
     },
@@ -59,7 +59,7 @@ Roach_Attacks = {
 }
 
 # General Properties
-HEALTH = 10000
+HEALTH = 1000
 PLAYER_STUN = 30
 PIT_DAMAGE = 100
 BUGS = {

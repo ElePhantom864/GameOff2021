@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.4" tiledversion="1.4.2" orientation="orthogonal" renderorder="right-down" width="24" height="16" tilewidth="32" tileheight="32" infinite="0" nextlayerid="4" nextobjectid="67">
+<map version="1.4" tiledversion="1.4.2" orientation="orthogonal" renderorder="right-down" width="24" height="16" tilewidth="32" tileheight="32" infinite="0" nextlayerid="4" nextobjectid="228">
  <tileset firstgid="1" source="modifiedspringstar.tsx"/>
  <layer id="1" name="Tile Layer 1" width="24" height="16">
   <data encoding="csv">
@@ -52,7 +52,7 @@
     <property name="solid" type="bool" value="true"/>
    </properties>
   </object>
-  <object id="50" name="Test.tmx" type="Teleport" x="800" y="0" width="8" height="480">
+  <object id="50" name="Test.tmx" type="Teleport" x="768" y="0" width="8" height="480">
    <properties>
     <property name="playerLocation" value="player"/>
    </properties>
@@ -70,8 +70,7 @@
   </object>
   <object id="55" name="pit" x="288" y="416" width="128" height="32">
    <properties>
-    <property name="destx" type="int" value="240"/>
-    <property name="desty" type="int" value="288"/>
+    <property name="destination" type="object" value="226"/>
    </properties>
   </object>
   <object id="56" name="Arena" x="416" y="0" width="352" height="352">
@@ -107,9 +106,15 @@
     <property name="solid" type="bool" value="true"/>
    </properties>
   </object>
-  <object id="64" name="Test.tmx" type="Teleport" x="768" y="352" width="32" height="128">
+  <object id="226" x="240" y="320">
+   <point/>
+  </object>
+  <object id="227" name="turret" x="192" y="192" width="32" height="32">
    <properties>
-    <property name="playerLocation" value="player"/>
+    <property name="damage" type="int" value="50"/>
+    <property name="die" type="bool" value="true"/>
+    <property name="health" type="int" value="500"/>
+    <property name="speed" type="int" value="1000"/>
    </properties>
   </object>
  </objectgroup>
