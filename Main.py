@@ -29,6 +29,7 @@ class Game:
         self.img_folder = path.join(self.game_folder, 'img')
         self.sound_folder = path.join(self.game_folder, 'sounds')
         self.font = path.join(self.game_folder, 'font', 'techno_hideo.ttf')
+        self.icon = pg.image.load(path.join(self.img_folder, 'select.png'))
 
     def load_map(self, map_name, playerLocation):
         # clear all groups
@@ -45,11 +46,16 @@ class Game:
         self.camera = Camera(self.map.width, self.map.height)
         self.map_top_img, self.map_bottom_img = self.map.make_map()
         self.map_rect = self.map_bottom_img.get_rect()
-        background = pg.image.load(path.join(self.img_folder, 'tree_background.png'))
-        self.bgSurface = pg.Surface((self.map.width, self.map.height))
+        background = pg.image.load(path.join(self.img_folder, 'tree.png'))
+        self.bgSurface2 = pg.Surface((self.map.width, self.map.height), pg.SRCALPHA)
         for y in range(0, self.map.height, 512):
             for x in range(0, self.map.width, 768):
-                self.bgSurface.blit(background, (x, y))
+                self.bgSurface2.blit(background, (x, y))
+        background = pg.image.load(path.join(self.img_folder, 'stars.png'))
+        self.bgSurface1 = pg.Surface((self.map.width, self.map.height))
+        for y in range(0, self.map.height, 512):
+            for x in range(0, self.map.width, 768):
+                self.bgSurface1.blit(background, (x, y))
         if 'music' in self.map.tmxdata.properties and self.current_music != self.map.tmxdata.properties['music']:
             # Music Loading
             pg.mixer.music.fadeout(1000)
@@ -123,7 +129,7 @@ class Game:
             self.load_images(image)
         self.current_music = None
         self.player = spr.Player(self, 100, 100)
-        self.load_map('test.tmx', 'player')
+        self.load_map('level3.tmx', 'player')
         self.run()
 
     def run(self):
@@ -171,10 +177,12 @@ class Game:
 
     def draw(self):
         # Game Loop - draw
-        self.screen.blit(self.bgSurface, self.camera.apply_rect(self.map_rect, parallax=(6, 6)))
+        self.screen.blit(self.bgSurface1, self.camera.apply_rect(self.map_rect, parallax=(12, 12)))
+        self.screen.blit(self.bgSurface2, self.camera.apply_rect(self.map_rect, parallax=(6, 6)))
         self.screen.blit(self.map_bottom_img, self.camera.apply_rect(self.map_rect))
         for sprite in self.all_sprites:
             self.screen.blit(sprite.image, self.camera.apply(sprite))
+        self.screen.blit(self.player.image, self.camera.apply(self.player))
         self.screen.blit(self.map_top_img, self.camera.apply_rect(self.map_rect))
         self.player.draw_ui()
         # for debug purposes
@@ -190,7 +198,7 @@ class Game:
             self.all_images[bug_name] = {}
             for direction in s.Animation:
                 self.all_images[bug_name][direction] = []
-                for i in [1, 2, 3, 4, 5, 6]:
+                for i in range(1, 13):
                     mob_folder = path.join(self.img_folder, bug_name)
                     img = bug_name + direction.value + str(i) + ".png"
                     try:
@@ -198,7 +206,7 @@ class Game:
                             path.join(mob_folder, img)).convert_alpha()
                         self.all_images[bug_name][direction].append(loaded_image)
                     except FileNotFoundError as e:
-                        print("Mob image is missing", e)
+                        pass
 
     def get_sound(self, sound):
         if sound not in self.sound_cache:

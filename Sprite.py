@@ -21,8 +21,57 @@ def roach_special(player, count):
         player.animation_type = s.Animation.IDLE
 
 
+def bombardier_special(player, count):
+    if count == 30:
+        for enemy in player.game.enemies:
+            if player.pos.distance_squared_to(enemy.pos) < 96**2:
+                enemy.hit(s.BUGS[player.current_bug]['ATTACKS'][player.attack_type]['DAMAGE'])
+    if count <= 0:
+        player.animation_speed = s.BUGS[player.current_bug]['ANIMATION']
+        player.animation_type = s.Animation.IDLE
+
+
+def ant_special(player, count):
+    if count == 30:
+        for enemy in player.game.enemies:
+            if player.pos.distance_squared_to(enemy.pos) < 960**2:
+                Projectile(player.game, player.pos.x + 100, player.pos.y, 'Ant', 150, enemy.pos, 0.5, 0, 1000,
+                           s.BUGS[player.current_bug]['ATTACKS'][player.attack_type]['DAMAGE'], True, 200, True, 4)
+    if count <= 0:
+        player.animation_speed = s.BUGS[player.current_bug]['ANIMATION']
+        player.animation_type = s.Animation.IDLE
+
+
+def hercules_special(player, count):
+    player.acc.x = 0.6
+    if player.direction == 'Left':
+        player.acc.x = -0.6
+    hits = pg.sprite.spritecollide(player, player.game.enemies, False, collide_hit_rect)
+    for hit in hits:
+        hit.hit(s.BUGS[player.current_bug]['ATTACKS'][player.attack_type]['DAMAGE'])
+    if count <= 0:
+        player.animation_speed = s.BUGS[player.current_bug]['ANIMATION']
+        player.animation_type = s.Animation.IDLE
+
+
+def wasp_special(player, count):
+    if count == 30:
+        target = vec(player.pos.x + 144, player.pos.y)
+        if player.direction == 'Left':
+            target = vec(player.pos.x - 144, player.pos.y)
+        Projectile(player.game, player.pos.x, player.pos.y, 'Wasp', 150, target, 0.1, 0, 5000,
+                   s.BUGS[player.current_bug]['ATTACKS'][player.attack_type]['DAMAGE'], True, 200, True, 10)
+    if count <= 0:
+        player.animation_speed = s.BUGS[player.current_bug]['ANIMATION']
+        player.animation_type = s.Animation.IDLE
+
+
 special_attacks = {
-    'Roach': roach_special
+    'Roach': roach_special,
+    'Bombardier': bombardier_special,
+    'Ant': ant_special,
+    'Hercules': hercules_special,
+    'Wasp': wasp_special
 }
 
 
@@ -56,7 +105,7 @@ def collide_with_walls(sprite, group, dir, solid=True):
                             sprite.vel.y = 0
                             sprite.pos.y = hit.rect.bottom + \
                                 (sprite.hit_rect.height / 2) + 1
-                    elif hit.rect.top > sprite.rect.bottom:
+                    elif sprite.hit_rect.bottom <= hit.rect.top + 20:
                         collided = hit
                         sprite.pos.y = hit.rect.top - (sprite.hit_rect.height / 2) - 1
 
@@ -134,7 +183,7 @@ class Player(pg.sprite.Sprite):
                     self.jump = False
             if event.key == pg.K_e and self.special <= 0 and self.current_bug != 'Parasite':
                 if self.stamina >= s.BUGS[self.current_bug]['ATTACKS'][s.Animation.SPECIAL_A]['COST']:
-                    play_sound(self.game, s.BUGS[self.current_bug]['ATTACKS'][s.Animation.SPECIAL_A]['SOUND'])
+                    # play_sound(self.game, s.BUGS[self.current_bug]['ATTACKS'][s.Animation.SPECIAL_A]['SOUND'])
                     self.animation_phase = 0
                     self.special = s.BUGS[self.current_bug]['ATTACKS'][s.Animation.SPECIAL_A]['DURATION']
                     self.animation_type = s.Animation.SPECIAL_A
@@ -164,7 +213,7 @@ class Player(pg.sprite.Sprite):
                 self.jump = True
         if keys[pg.K_DOWN] or keys[pg.K_s]:
             if self.jump and self.attacking <= 0 and self.special <= 0 and not self.in_air:
-                self.pos.y += 1
+                self.pos.y += 30
                 self.jump_leniency = -1
                 self.jump = False
         if keys[pg.K_q] and pg.time.get_ticks() > self.parasite_cooldown:
@@ -175,7 +224,7 @@ class Player(pg.sprite.Sprite):
                     if self.pos.distance_squared_to(enemy.pos) < 150**2 and enemy.controllable and not locked:
                         if self.current_bug != 'Parasite':
                             host = Enemy(self.game, self.pos.x, self.pos.y, self.current_bug, False)
-                            if len(self.game.arena_enemies) > 0:
+                            if len(self.game.arena_enemies) >= 1:
                                 self.game.arena_enemies.add(host)
                         locked = True
                         Projectile(self.game, self.pos.x, self.pos.y, 'Parasite', 150, enemy.pos, 0.5, -0.05, 5000, 0, True, True)
@@ -188,6 +237,8 @@ class Player(pg.sprite.Sprite):
                         self.rect = self.image.get_rect()
                         self.hit_rect = pg.Rect.copy(s.BUGS[self.current_bug]['HIT_RECT'])
                         self.pos = enemy.pos
+                        self.rect.center = self.pos
+                        self.hit_rect.center = self.pos
                         self.image = enemy.image
                         enemy.kill()
 
@@ -231,6 +282,10 @@ class Player(pg.sprite.Sprite):
             pg.draw.rect(self.game.screen, col, fill_rect)
             pg.draw.rect(self.game.screen, s.BLACK, outline_rect, 2)
             write_text(self.game, 'Stamina', 20, s.BLACK, (10, 30))
+        if self.current_bug != 'Parasite':
+            rect = self.game.icon.get_rect()
+            rect.midbottom = self.rect.midtop
+            self.game.screen.blit(self.game.icon, self.game.camera.apply_rect(rect))
 
     def check_collision(self):
         # check collision x
@@ -249,7 +304,7 @@ class Player(pg.sprite.Sprite):
         else:
             self.in_air = True
         # check collision with semi-solid walls
-        if self.acc.y >= 0:
+        if self.vel.y >= 0:
             hit = collide_with_walls(self, self.game.semi_walls, 'y', False)
             if hit:
                 self.acc.y = 0
@@ -265,7 +320,7 @@ class Player(pg.sprite.Sprite):
         self.health -= damage
         if self.health <= 0:
             self.kill()
-        play_sound(self.game, self.current_bug + 'Hit')
+        play_sound(self.game, 'Hit' + str(rand.randrange(1, 7)))
 
     def set_pos(self, x, y):
         self.pos = vec(x, y)
@@ -288,7 +343,7 @@ class Player(pg.sprite.Sprite):
         if self.attack_leniency >= 0:
             self.attack_leniency += 1
         if 0 < self.attack_leniency <= 10 and not self.in_air and self.attacking <= 0 and self.current_bug != 'Parasite':
-            play_sound(self.game, s.BUGS[self.current_bug]['ATTACKS'][self.attack_type]['SOUND'])
+            # play_sound(self.game, s.BUGS[self.current_bug]['ATTACKS'][self.attack_type]['SOUND'])
             self.animation_phase = 0
             self.attacking = s.BUGS[self.current_bug]['ATTACKS'][self.attack_type]['DURATION']
             self.animation_type = self.attack_type
@@ -306,6 +361,9 @@ class Player(pg.sprite.Sprite):
             for enemy in self.game.enemies:
                 if pg.Rect.colliderect(rect, enemy.hit_rect):
                     enemy.hit(s.BUGS[self.current_bug]['ATTACKS'][self.attack_type]['DAMAGE'])
+            if self.current_bug == 'Bombardier':
+                Projectile(self.game, rect.centerx, rect.centery, 'Bombardier', 100, vec(rect.centerx, rect.centery), 0, 0, 500,
+                           s.BUGS[self.current_bug]['ATTACKS'][self.attack_type]['DAMAGE'] / 5, False, 100, True, 5)
             self.attack_leniency = -1
 
     def update(self):
@@ -323,8 +381,8 @@ class Player(pg.sprite.Sprite):
             self.image = self.game.all_images[self.current_bug][self.animation_type][0]
             self.rect = self.image.get_rect()
             self.hit_rect = pg.Rect.copy(s.BUGS[self.current_bug]['HIT_RECT'])
-        self.attacks()
         self.acc.x = 0
+        self.attacks()
         self.handle_keys()
         # apply gravity
         if self.in_air == True:
@@ -336,6 +394,7 @@ class Player(pg.sprite.Sprite):
             self.jump_leniency += 1
         if self.attacking <= 0 and self.special <= 0:
             if 0 < self.jump_leniency < 10 and self.in_air == False:
+                play_sound(self.game, 'jump')
                 self.acc.y = s.BUGS[self.current_bug]['JUMP_ACC']
                 self.in_air = True
         # apply friction
@@ -345,6 +404,7 @@ class Player(pg.sprite.Sprite):
         self.pos += self.vel + 0.5 * self.acc
         self.check_collision()
         self.rect.center = self.pos
+        # animation
         self.animate_movement()
 
 
@@ -356,6 +416,7 @@ class Obstacle(pg.sprite.Sprite):
         self.solid = solid
         self.game = game
         self.rect = pg.Rect(x, y, w, h)
+        self.hit_rect = self.rect
         self.x = x
         self.y = y
         self.rect.x = x
@@ -375,7 +436,7 @@ class Enemy(pg.sprite.Sprite):
         self.acc = vec(0, 0)
         self.attack_type = s.Animation.FRONT_A
         self.planned_attack = s.Animation.FRONT_A
-        self.animation_type = s.Animation.IDLE
+        self.animation_type = s.Animation.WALK
         self.direction = 'Right'
         self.animation_phase = 0
         self.image = self.game.all_images[self.bug_type][self.animation_type][0]
@@ -457,11 +518,13 @@ class Enemy(pg.sprite.Sprite):
         self.clear_damage = pg.time.get_ticks() + 2000
         self.recent_damage += damage
         if self.health <= 0:
+            if self.game.player.health < s.HEALTH - 50:
+                self.game.player.health += 50
             self.kill()
         self.animation_type = s.Animation.HIT
         self.animation_phase = 0
         self.stunned = s.BUGS[self.bug_type]['RECOVERY']
-        play_sound(self.game, self.bug_type + 'Hit')
+        play_sound(self.game, 'Hit' + str(rand.randrange(1, 7)))
         if self.recent_damage >= s.BUGS[self.bug_type]['STUN']:
             self.recent_damage = 0
             self.stunned = -1
@@ -509,7 +572,7 @@ class Enemy(pg.sprite.Sprite):
                         rect.center = self.pos - offset
                     else:
                         rect.centerx = self.pos.x - offset.x
-                if self.game.player.rect.colliderect(rect) and self.stunned < 0 and self.planning < -100:
+                if self.game.player.rect.colliderect(rect) and self.stunned < 0 and self.planning < -50:
                     self.vel = vec(0, 0)
                     self.acc = vec(0, 0)
                     self.planning = 60
@@ -532,37 +595,8 @@ class Enemy(pg.sprite.Sprite):
         if self.attacking <= 0:
             self.animation_speed = s.BUGS[self.bug_type]['ANIMATION']
             self.animation_type = s.Animation.IDLE
-        if self.attacking == 10:
-            rect = pg.Rect.copy(s.BUGS[self.bug_type]['ATTACKS'][self.planned_attack]['HIT_RECT'])
-            offset = s.BUGS[self.bug_type]['ATTACKS'][self.planned_attack]['OFFSET']
-            rect.center = self.pos + offset
-            if self.direction == 'Left':
-                if self.planned_attack == s.Animation.FRONT_A:
-                    rect.center = self.pos - offset
-                else:
-                    rect.centerx = self.pos.x - offset.x
-            if pg.Rect.colliderect(rect, self.game.player.hit_rect):
-                self.game.player.hit(s.BUGS[self.bug_type]['ATTACKS'][self.planned_attack]['DAMAGE'])
-            self.planned_attack = rand.choice([s.Animation.FRONT_A, s.Animation.DOWN_A, s.Animation.UP_A])
-            self.game.debug_rects.append(rect)
 
     def update(self):
-        if self.clear_damage < pg.time.get_ticks():
-            self.recent_damage = 0
-        if self.attacking > 0:
-            self.attack()
-        self.planning -= 1
-        if self.planning > 0:
-            self.acc = vec(0, 0)
-            self.vel = vec(0, 0)
-            self.animation_type = s.Animation.IDLE
-            if rand.randrange(0, self.planning) == 30 or self.planning == 1:
-                self.planning = 0
-                play_sound(self.game, s.BUGS[self.bug_type]['ATTACKS'][self.planned_attack]['SOUND'])
-                self.animation_phase = 0
-                self.attacking = s.BUGS[self.bug_type]['ATTACKS'][self.planned_attack]['DURATION']
-                self.animation_type = self.planned_attack
-                self.animation_speed = s.BUGS[self.bug_type]['ATTACKS'][self.planned_attack]['SPEED']
         if self.stunned >= 0:
             self.stunned -= 1
             self.animation_speed = s.BUGS[self.bug_type]['RECOVERY']
@@ -572,9 +606,9 @@ class Enemy(pg.sprite.Sprite):
             # movement
             self.acc.x = 0
             if self.direction == 'Right':
-                self.acc.x = s.BUGS[self.bug_type]['ACC'] / 1.5
+                self.acc.x = s.BUGS[self.bug_type]['ACC']
             elif self.direction == 'Left':
-                self.acc.x = -s.BUGS[self.bug_type]['ACC'] / 1.5
+                self.acc.x = -s.BUGS[self.bug_type]['ACC']
             if self.anger <= 0:
                 self.acc.x /= 2
             self.animation_speed = s.BUGS[self.bug_type]['ANIMATION']
@@ -585,6 +619,35 @@ class Enemy(pg.sprite.Sprite):
                 self.acc.y = s.BUGS[self.bug_type]['MAX_FALL']
         # apply friction
         self.acc.x += self.vel.x * s.BUGS[self.bug_type]['FRICTION']
+        # perform attack
+        self.planning -= 1
+        if self.planning > 0:
+            self.acc = vec(0, 0)
+            self.vel = vec(0, 0)
+            self.animation_type = s.Animation.IDLE
+            if rand.randrange(0, self.planning) == 30 or self.planning == 1:
+                self.planning = 0
+                # play_sound(self.game, s.BUGS[self.bug_type]['ATTACKS'][self.planned_attack]['SOUND'])
+                self.animation_phase = 0
+                self.attacking = s.BUGS[self.bug_type]['ATTACKS'][self.planned_attack]['DURATION']
+                self.animation_type = self.planned_attack
+                self.animation_speed = s.BUGS[self.bug_type]['ATTACKS'][self.planned_attack]['SPEED']
+                rect = pg.Rect.copy(s.BUGS[self.bug_type]['ATTACKS'][self.planned_attack]['HIT_RECT'])
+                offset = s.BUGS[self.bug_type]['ATTACKS'][self.planned_attack]['OFFSET']
+                rect.center = self.pos + offset
+                if self.direction == 'Left':
+                    if self.planned_attack == s.Animation.FRONT_A:
+                        rect.center = self.pos - offset
+                    else:
+                        rect.centerx = self.pos.x - offset.x
+                if pg.Rect.colliderect(rect, self.game.player.hit_rect):
+                    self.game.player.hit(s.BUGS[self.bug_type]['ATTACKS'][self.planned_attack]['DAMAGE'])
+                self.planned_attack = rand.choice([s.Animation.FRONT_A, s.Animation.DOWN_A, s.Animation.UP_A])
+                self.game.debug_rects.append(rect)
+        if self.clear_damage < pg.time.get_ticks():
+            self.recent_damage = 0
+        if self.attacking > 0:
+            self.attack()
         # equations of motion
         self.vel += self.acc
         self.pos += self.vel + 0.5 * self.acc
@@ -624,7 +687,7 @@ class Turret(pg.sprite.Sprite):
         self.health -= damage
         if self.health <= 0:
             self.kill()
-        play_sound(self.game, self.name + 'Hit')
+        play_sound(self.game, 'Hit' + str(rand.randrange(1, 7)))
 
     def animate(self):
         if pg.time.get_ticks() < self.next_animation_tick:
@@ -740,6 +803,7 @@ class Arena(pg.sprite.Sprite):
         self.y = y
         self.rect.x = x
         self.rect.y = y
+        self.hit_rect = self.rect
         self.total_waves = waves
         self.wave_count = -1
         self.enemies_per_wave = enemy_amount
@@ -758,17 +822,16 @@ class Arena(pg.sprite.Sprite):
             return
         enemy_types = self.enemy_type_per_wave[self.wave_count].split(',')
         # temp dynamic spawning, fix later
-        added = self.game.player.health // 300
+        added = self.game.player.health // 250
         for i in range(int(self.enemies_per_wave[self.wave_count]) + added):
-            print('one')
             name = rand.choice(enemy_types)
             location = rand.choice(self.enemy_locations)
             self.game.arena_enemies.add(Enemy(self.game, location.x, location.y, name))
 
     def update(self):
         if pg.Rect.colliderect(self.rect, self.game.player.hit_rect) and self.activated == False:
-            self.border.append(Obstacle(self.game, self.x - 32, self.y, 32, self.rect.height))
-            self.border.append(Obstacle(self.game, self.x + self.rect.width, self.y, 32, self.rect.height))
+            self.border.append(Obstacle(self.game, self.x - 48, self.y, 32, self.rect.height))
+            self.border.append(Obstacle(self.game, self.x + self.rect.width + 16, self.y, 32, self.rect.height))
             self.spawn_wave()
             self.activated = True
         if self.activated:
@@ -800,13 +863,14 @@ class Pit(pg.sprite.Sprite):
         pg.sprite.Sprite.__init__(self, self.groups)
 
     def update(self):
-        hits = pg.sprite.spritecollide(self, self.game.enemies, False, collide_hit_rect)
+        hits = pg.sprite.spritecollide(self, self.game.enemies, False)
         for enemy in hits:
-            enemy.hit(10000)
-            enemy.pos = vec(self.destination.x, self.destination.y)
-            enemy.rect.center = enemy.pos
-            enemy.hit_rect = pg.Rect.copy(s.BUGS[enemy.bug_type]['HIT_RECT'])
-            enemy.hit_rect.center = enemy.rect.center
+            if self.hit_rect.colliderect(enemy.hit_rect):
+                enemy.hit(s.PIT_DAMAGE)
+                enemy.pos = vec(self.destination.x, self.destination.y)
+                enemy.rect.center = enemy.pos
+                enemy.hit_rect = pg.Rect.copy(s.BUGS[enemy.bug_type]['HIT_RECT'])
+                enemy.hit_rect.center = enemy.rect.center
 
 
 class Teleport(pg.sprite.Sprite):
@@ -817,5 +881,6 @@ class Teleport(pg.sprite.Sprite):
         self.rect = pg.Rect(x, y, w, h)
         self.rect.x = x
         self.rect.y = y
+        self.hit_rect = self.rect
         self.destination = playerDestination
         self.location = playerLocation
