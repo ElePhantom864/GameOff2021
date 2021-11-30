@@ -42,11 +42,11 @@ Roach_Attacks = {
         'SOUND': 'AddLater'
     },
     Animation.UP_A: {
-        'DURATION': 20,
+        'DURATION': 40,
         'SPEED': 100,
         'HIT_RECT': pg.Rect(0, 0, 5, 40),
         'OFFSET': vec(15, -10),
-        'DAMAGE': 10,
+        'DAMAGE': 30,
         'SOUND': 'AddLater'
     },
     Animation.SPECIAL_A: {
@@ -92,11 +92,11 @@ Ant_Attacks = {
 }
 Bombardier_Attacks = {
     Animation.FRONT_A: {
-        'DURATION': 50,
+        'DURATION': 20,
         'SPEED': 100,
         'HIT_RECT': pg.Rect(0, 0, 50, 10),
         'OFFSET': vec(30, 0),
-        'DAMAGE': 20,
+        'DAMAGE': 5,
         'SOUND': 'AddLater'
     },
     Animation.DOWN_A: {
@@ -104,7 +104,7 @@ Bombardier_Attacks = {
         'SPEED': 60,
         'HIT_RECT': pg.Rect(0, 0, 60, 10),
         'OFFSET': vec(0, 30),
-        'DAMAGE': 20,
+        'DAMAGE': 70,
         'SOUND': 'AddLater'
     },
     Animation.UP_A: {
@@ -112,7 +112,7 @@ Bombardier_Attacks = {
         'SPEED': 50,
         'HIT_RECT': pg.Rect(0, 0, 5, 210),
         'OFFSET': vec(15, -70),
-        'DAMAGE': 20,
+        'DAMAGE': 30,
         'SOUND': 'AddLater'
     },
     Animation.SPECIAL_A: {
@@ -243,7 +243,7 @@ BUGS = {
         'MAX_STAMINA': 200,
         'ANIMATION': 100,
         'ATTACKS': Bombardier_Attacks,
-        'RECOVERY': 125,
+        'RECOVERY': 75,
         'STUN': 250,
         'HEALTH': 750
     },
@@ -278,7 +278,7 @@ BUGS = {
 }
 
 # things requiring load
-Loading = ['Parasite', 'Roach', 'Ant', 'Bombardier', 'Hercules', 'Wasp']
+Loading = ['Parasite', 'Roach', 'Ant', 'Bombardier', 'Hercules', 'Wasp', 'Turret']
 
 # define colors
 WHITE = (255, 255, 255)
