@@ -53,6 +53,7 @@ class Game:
         self.checkpoints.empty()
         self.player.add(self.all_sprites)
         # load a new map
+        self.player.health = s.HEALTH
         self.current_map = map_name
         self.map = TiledMap(path.join(self.map_folder, map_name))
         self.camera = Camera(self.map.width, self.map.height)
@@ -112,7 +113,8 @@ class Game:
                 direction = tile_object.properties['direction']
                 flip_vert = tile_object.properties['flip_vert']
                 flip_hor = tile_object.properties['flip_hor']
-                turret = spr.Turret(self, obj_center.x, obj_center.y, health, damage, frequency, speed, target, die_on_impact, direction, flip_vert, flip_hor)
+                size = tile_object.width
+                turret = spr.Turret(self, obj_center.x, obj_center.y, health, damage, frequency, speed, target, die_on_impact, direction, flip_vert, flip_hor, size)
                 self.objects_by_id[tile_object.id] = turret
             if tile_object.name == 'checkpoint':
                 checkpoint = spr.Checkpoint(self, obj_center.x, obj_center.y)
@@ -121,7 +123,7 @@ class Game:
                 spr.Teleport(
                     self, tile_object.x, tile_object.y,
                     tile_object.width, tile_object.height,
-                    tile_object.name, tile_object.properties['playerLocation'])
+                    tile_object.properties['mission'])
             if tile_object.name == 'Arena':
                 count = tile_object.properties['enemycount'].split(',')
                 types = tile_object.properties['enemytypes'].split(';')
@@ -195,9 +197,14 @@ class Game:
                 self.screen.blit(tint, (0, 0))
                 pg.display.flip()
                 time.sleep(0.05)
-            self.max_mission += 1
+            if hit.mission == self.max_mission:
+                self.max_mission += 1
             pg.mixer.music.unpause()
-            self.UI.run(self.UI.main)
+            if hit.mission == 5:
+                self.UI.run(self.UI.main)
+                self.max_mission -= 1
+            else:
+                self.UI.run(self.UI.missions)
             return
 
     def events(self):
@@ -280,26 +287,97 @@ class UI:
     def main(self):
         # ui, pos, size, text, text_size, offset, color, state, border=0, circle=0
         self.game.screen.fill(s.BLACK)
-        self.buttons.add(spr.Button(self, (50, 50), (100, 100), 'Parasite', 100, (10, 50), s.BLACK, 'None', 2, 3))
+        self.buttons.add(spr.Button(self, (50, 50), (100, 100), 'Parasyte', 100, (10, 50), s.BLACK, 'None', 2, 3))
         self.buttons.add(spr.Button(self, (0, 0), (100, 100), 'Project', 32, (10, 50), s.BLACK, 'None', 2, 3))
         self.buttons.add(spr.Button(self, (s.WIDTH / 4, s.HEIGHT / 2), (320, 60), 'Mission Select', 32, (10, 20), s.BLUE, 'Missions', 2, 10))
         self.buttons.add(spr.Button(self, (s.WIDTH / 4, s.HEIGHT - 180), (320, 60), 'Quit', 32, (10, 20), s.RED, 'Quit', 2, 10))
 
     def missions(self):
         self.game.screen.fill(s.BLACK)
-        self.buttons.add(spr.Button(self, (5, 20), (650, 100), 'Mission 1', 100, (10, 20), s.GREEN, 'Brief1', 5, 3))
-        if self.game.max_mission >= 2:
-            self.buttons.add(spr.Button(self, (5, 170), (650, 100), 'Mission 2', 100, (10, 20), s.GREEN, 'Brief2', 5, 3))
+        y = 5
+        for mission in range(1, self.game.max_mission + 1):
+            self.buttons.add(spr.Button(self, (5, y), (650, 80), 'Mission' + str(mission), 100, (10, 10), s.GREEN, 'Brief' + str(mission), 5, 3))
+            y += 100
+        for mission in range(mission + 1, 6):
+            self.buttons.add(spr.Button(self, (5, y), (650, 80), 'LOCKED' + str(mission), 100, (10, 10), s.RED, 'None', 5, 3))
+            y += 100
 
     def brief_1(self):
         self.game.screen.fill(s.BLACK)
-        self.buttons.add(spr.Button(self, (5, 50), (100, 100), 'Arrival', 100, (10, 50), s.BLACK, 'None', 2, 3))
-        self.buttons.add(spr.Button(self, (5, 400), (320, 60), 'Placeholder, click to skip', 32, (10, 20), s.BLACK, 'Level1', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 5), (100, 100), 'Encounter', 100, (10, 10), s.BLACK, 'None', 2, 3))
+        self.buttons.add(spr.Button(self, (5, 70), (0, 0), 'PARASYTE, you are currently floating', 32, (10, 20), s.BLUE, 'Level1', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 100), (0, 0), 'above an infested sector on the', 32, (10, 20), s.BLUE, 'Level1', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 130), (0, 0), 'planet BU7. Your objective is to clear', 32, (10, 20), s.BLUE, 'Level1', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 160), (0, 0), 'of mutated insectoids that are ', 32, (10, 20), s.BLUE, 'Level1', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 190), (0, 0), 'blocking human colonization. To', 32, (10, 20), s.BLUE, 'Level1', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 220), (0, 0), 'accomplish this you can jump into a', 32, (10, 20), s.BLUE, 'Level1', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 250), (0, 0), "insectoid's brain, taking it over.", 32, (10, 20), s.BLUE, 'Level1', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 280), (0, 0), "Our scan reveals 3 types of enemies", 32, (10, 20), s.BLUE, 'Level1', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 310), (0, 0), "Good luck", 32, (10, 20), s.BLUE, 'Level1', 2, 10))
+        self.buttons.add(spr.Button(self, (350, 470), (320, 60), 'Click here to Launch', 32, (10, 20), s.BLACK, 'Level1', 2, 10))
 
     def brief_2(self):
         self.game.screen.fill(s.BLACK)
-        self.buttons.add(spr.Button(self, (5, 50), (100, 100), 'The Outpost', 100, (10, 50), s.BLACK, 'None', 2, 3))
-        self.buttons.add(spr.Button(self, (5, 400), (320, 60), 'Placeholder, click to skip', 32, (10, 20), s.BLACK, 'Level2', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 5), (100, 100), 'Escalation', 100, (10, 10), s.BLACK, 'None', 2, 3))
+        self.buttons.add(spr.Button(self, (5, 70), (0, 0), 'It appears that the insectoid problem', 32, (10, 20), s.BLUE, 'Level2', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 100), (0, 0), 'was much larger than anticipated.', 32, (10, 20), s.BLUE, 'Level2', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 130), (0, 0), 'We will be dropping you at a ', 32, (10, 20), s.BLUE, 'Level2', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 160), (0, 0), 'different location to once again', 32, (10, 20), s.BLUE, 'Level2', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 190), (0, 0), 'combat this threat. These insectoid', 32, (10, 20), s.BLUE, 'Level2', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 220), (0, 0), 'creatures appear to be prone to ', 32, (10, 20), s.BLUE, 'Level2', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 250), (0, 0), "mutation and can quickly grow", 32, (10, 20), s.BLUE, 'Level2', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 280), (0, 0), "into a formidable threat. For this", 32, (10, 20), s.BLUE, 'Level2', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 310), (0, 0), "reason, we need you to cut off the", 32, (10, 20), s.BLUE, 'Level2', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 340), (0, 0), "infestation at its roots. There will", 32, (10, 20), s.BLUE, 'Level2', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 370), (0, 0), "be more missions. Our scans reveal", 32, (10, 20), s.BLUE, 'Level2', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 400), (0, 0), "an additonal enemy type. Good luck", 32, (10, 20), s.BLUE, 'Level2', 2, 10))
+        self.buttons.add(spr.Button(self, (350, 470), (320, 60), 'Click here to Launch', 32, (10, 20), s.BLACK, 'Level2', 2, 10))
+
+    def brief_3(self):
+        self.game.screen.fill(s.BLACK)
+        self.buttons.add(spr.Button(self, (5, 5), (100, 100), 'Star Fields', 100, (10, 10), s.BLACK, 'None', 2, 3))
+        self.buttons.add(spr.Button(self, (5, 70), (0, 0), 'You are currently in an area that', 32, (10, 20), s.BLUE, 'Level3', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 100), (0, 0), 'has been marked as "protected".', 32, (10, 20), s.BLUE, 'Level3', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 130), (0, 0), 'Permission has been given to ', 32, (10, 20), s.BLUE, 'Level3', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 160), (0, 0), 'bypass this marking and continue.', 32, (10, 20), s.BLUE, 'Level3', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 190), (0, 0), 'We have noticed increased activity.', 32, (10, 20), s.BLUE, 'Level3', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 220), (0, 0), 'It appears the insectoids can sense', 32, (10, 20), s.BLUE, 'Level3', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 250), (0, 0), "danger nearby. Our scans revel ", 32, (10, 20), s.BLUE, 'Level3', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 280), (0, 0), "another new enemy type.", 32, (10, 20), s.BLUE, 'Level3', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 310), (0, 0), "good luck", 32, (10, 20), s.BLUE, 'Level3', 2, 10))
+        self.buttons.add(spr.Button(self, (350, 470), (320, 60), 'Click here to Launch', 32, (10, 20), s.BLACK, 'Level3', 2, 10))
+
+    def brief_4(self):
+        self.game.screen.fill(s.BLACK)
+        self.buttons.add(spr.Button(self, (5, 5), (100, 100), 'Fortification', 100, (10, 10), s.BLACK, 'None', 2, 3))
+        self.buttons.add(spr.Button(self, (5, 70), (0, 0), 'The bugs of this area have come', 32, (10, 20), s.BLUE, 'Level4', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 100), (0, 0), 'up with rather interesting...', 32, (10, 20), s.BLUE, 'Level4', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 130), (0, 0), 'fortifications, if you will.', 32, (10, 20), s.BLUE, 'Level4', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 160), (0, 0), 'The poison shot out of them', 32, (10, 20), s.BLUE, 'Level4', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 190), (0, 0), 'can be easily avoided, but', 32, (10, 20), s.BLUE, 'Level4', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 220), (0, 0), 'be careful nonetheless', 32, (10, 20), s.BLUE, 'Level4', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 250), (0, 0), "They appear to be fragile and", 32, (10, 20), s.BLUE, 'Level4', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 280), (0, 0), "can be easily dispatched.", 32, (10, 20), s.BLUE, 'Level4', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 310), (0, 0), "There are no new enemy types", 32, (10, 20), s.BLUE, 'Level4', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 340), (0, 0), "that were revealed in the scan.", 32, (10, 20), s.BLUE, 'Level4', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 370), (0, 0), "good luck", 32, (10, 20), s.BLUE, 'Level4', 2, 10))
+        self.buttons.add(spr.Button(self, (350, 470), (320, 60), 'Click here to Launch', 32, (10, 20), s.BLACK, 'Level4', 2, 10))
+
+    def brief_5(self):
+        self.game.screen.fill(s.BLACK)
+        self.buttons.add(spr.Button(self, (5, 5), (100, 100), 'The Source', 100, (10, 5), s.BLACK, 'None', 2, 3))
+        self.buttons.add(spr.Button(self, (5, 70), (0, 0), 'We have finally arrived at', 32, (10, 20), s.BLUE, 'Level5', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 100), (0, 0), 'the source of the infestation.', 32, (10, 20), s.BLUE, 'Level5', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 130), (0, 0), 'A civilian cruiser appears to ', 32, (10, 20), s.BLUE, 'Level5', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 160), (0, 0), 'have made a stop here and misplaced', 32, (10, 20), s.BLUE, 'Level5', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 190), (0, 0), "some Earth bugs, which mutated", 32, (10, 20), s.BLUE, 'Level5', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 220), (0, 0), 'due to strange conditions in the area', 32, (10, 20), s.BLUE, 'Level5', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 250), (0, 0), "The bugs here have improved on the", 32, (10, 20), s.BLUE, 'Level5', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 280), (0, 0), "fortifcations. The poison is now ", 32, (10, 20), s.BLUE, 'Level5', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 310), (0, 0), "drawn to its target, but it will ", 32, (10, 20), s.BLUE, 'Level5', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 340), (0, 0), "dissapate after a while.", 32, (10, 20), s.BLUE, 'Level5', 2, 10))
+        self.buttons.add(spr.Button(self, (5, 370), (0, 0), "Complete your mission.", 32, (10, 20), s.BLUE, 'Level5', 2, 10))
+        self.buttons.add(spr.Button(self, (350, 470), (320, 60), 'Click here to Launch', 32, (10, 20), s.BLACK, 'Level5', 2, 10))
 
     def events(self):
         for event in pg.event.get():
@@ -319,12 +397,27 @@ class UI:
                 self.run(self.brief_1)
             if self.state == 'Brief2':
                 self.run(self.brief_2)
+            if self.state == 'Brief3':
+                self.run(self.brief_3)
+            if self.state == 'Brief4':
+                self.run(self.brief_4)
+            if self.state == 'Brief5':
+                self.run(self.brief_5)
             if self.state == 'Level1':
                 self.playing = False
                 self.game.load_map('level1.tmx', 'player')
             if self.state == 'Level2':
                 self.playing = False
+                self.game.load_map('level2.tmx', 'player')
+            if self.state == 'Level3':
+                self.playing = False
                 self.game.load_map('level3.tmx', 'player')
+            if self.state == 'Level4':
+                self.playing = False
+                self.game.load_map('level4.tmx', 'player')
+            if self.state == 'Level5':
+                self.playing = False
+                self.game.load_map('level5.tmx', 'player')
             if self.state == 'Quit':
                 if self.playing:
                     self.game.save

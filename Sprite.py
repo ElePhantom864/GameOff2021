@@ -378,7 +378,9 @@ class Player(pg.sprite.Sprite):
         if self.max_stamina > 0:
             self.stamina -= 0.05
         if self.stamina < 0:
-            Enemy(self.game, self.pos.x, self.pos.y, self.current_bug, False)
+            host = Enemy(self.game, self.pos.x, self.pos.y, self.current_bug, False)
+            if len(self.game.arena_enemies) >= 1:
+                self.game.arena_enemies.add(host)
             self.current_bug = 'Parasite'
             self.max_stamina = s.BUGS[self.current_bug]['MAX_STAMINA']
             self.animation_speed = s.BUGS[self.current_bug]['ANIMATION']
@@ -680,7 +682,7 @@ class Enemy(pg.sprite.Sprite):
 
 
 class Turret(pg.sprite.Sprite):
-    def __init__(self, game, x, y, health, damage, frequency, speed, target, die_on_impact, direction, flip_vert, flip_hor):
+    def __init__(self, game, x, y, health, damage, frequency, speed, target, die_on_impact, direction, flip_vert, flip_hor, size):
         self.groups = game.all_sprites, game.enemies
         self.game = game
         self.animation_type = s.Animation.IDLE
@@ -699,15 +701,17 @@ class Turret(pg.sprite.Sprite):
         self.speed = speed
         self.flip_vert = flip_vert
         self.flip_hor = flip_hor
+        self.size = size / 2
         if direction == 'Up':
             self.animation_type = s.Animation.WALK
         if target == self.game.player.pos:
-            self.target = self.game.player.pos
+            self.target = 'player'
             self.animation_type = s.Animation.HIT
         else:
             self.target = target
         self.controllable = False
-        self.animation_phase = 0
+        self.animation_phase = -1
+        self.animate()
         pg.sprite.Sprite.__init__(self, self.groups)
 
     def hit(self, damage):
@@ -730,13 +734,16 @@ class Turret(pg.sprite.Sprite):
             self.image = pg.transform.flip(self.image, False, True)
 
     def update(self):
-        if self.pos.distance_squared_to(self.game.player.pos) < 640**2:
+        if self.pos.distance_squared_to(self.game.player.pos) < self.size**2:
             self.animate()
             if pg.time.get_ticks() > self.next_fire:
+                target = self.target
+                if target == 'player':
+                    target = self.game.player.pos
                 if self.die_on_impact:
-                    Projectile(self.game, self.pos.x, self.pos.y, 'Turret', 150, self.target, self.speed, -0.5, 5000, self.damage, self.die_on_impact)
+                    Projectile(self.game, self.pos.x, self.pos.y, 'Turret', 150, target, self.speed, -0.5, 5000, self.damage, self.die_on_impact)
                 else:
-                    Projectile(self.game, self.pos.x, self.pos.y, 'Turret', 150, self.target, self.speed, -0.5, 5000, self.damage, self.die_on_impact, 100, False, 10)
+                    Projectile(self.game, self.pos.x, self.pos.y, 'Turret', 150, target, self.speed, -0.5, 5000, self.damage, self.die_on_impact, 100, False, 10)
                 self.next_fire = pg.time.get_ticks() + self.frequency
 
 
@@ -956,7 +963,7 @@ class Checkpoint(pg.sprite.Sprite):
 
 
 class Teleport(pg.sprite.Sprite):
-    def __init__(self, game, x, y, w, h, playerDestination, playerLocation):
+    def __init__(self, game, x, y, w, h, mission):
         self.groups = game.teleports
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
@@ -964,8 +971,7 @@ class Teleport(pg.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
         self.hit_rect = self.rect
-        self.destination = playerDestination
-        self.location = playerLocation
+        self.mission = mission
 
 
 class Button(pg.sprite.Sprite):

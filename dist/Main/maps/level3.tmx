@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.4" tiledversion="1.4.2" orientation="orthogonal" renderorder="right-down" width="352" height="24" tilewidth="32" tileheight="32" infinite="0" nextlayerid="5" nextobjectid="243">
+<map version="1.4" tiledversion="1.4.2" orientation="orthogonal" renderorder="right-down" width="352" height="24" tilewidth="32" tileheight="32" infinite="0" nextlayerid="5" nextobjectid="257">
  <properties>
   <property name="music" value="bg.mp3"/>
  </properties>
@@ -92,8 +92,6 @@
 </data>
  </layer>
  <objectgroup id="3" name="Object Layer 1">
-  <object id="16" name="first arena of the level, like 2 waves with 2 enemies, 1 with 3, and 1 with 4? also can u make the arena move up to the top of the screen if they took the top path, and enemies count as defeated if they go offscreen? if you could that would be rly cool thx" x="3560" y="784" width="928" height="352"/>
-  <object id="17" name="last arena, final challenge of the level, 5 waves with 4 enemies each, one with six, and one with seve, feel free to change the amounts of enemies btw it's your game" x="8680" y="760" width="1088" height="608"/>
   <object id="18" name="Bombardier" type="mutated" x="5152" y="224" width="32" height="64"/>
   <object id="21" name="Wasp" type="mutated" x="5440" y="288" width="32" height="64"/>
   <object id="22" name="Wasp" type="mutated" x="5184" y="608" width="32" height="64"/>
@@ -497,7 +495,7 @@
     <property name="solid" type="bool" value="true"/>
    </properties>
   </object>
-  <object id="114" name="player" x="160" y="288" width="32" height="32">
+  <object id="114" name="player" x="96" y="448" width="32" height="32">
    <properties>
     <property name="solid" type="bool" value="true"/>
    </properties>
@@ -890,6 +888,58 @@
     <property name="location2" type="object" value="239"/>
     <property name="locations" type="int" value="3"/>
     <property name="waves" type="int" value="5"/>
+   </properties>
+  </object>
+  <object id="244" name="checkpoint" x="96" y="416" width="32" height="64">
+   <properties>
+    <property name="solid" type="bool" value="true"/>
+   </properties>
+  </object>
+  <object id="245" name="TemplateTurret" x="160" y="256" width="32" height="64">
+   <properties>
+    <property name="damage" type="int" value="50"/>
+    <property name="die" type="bool" value="true"/>
+    <property name="direction" value="Forward"/>
+    <property name="flip_hor" type="bool" value="false"/>
+    <property name="flip_vert" type="bool" value="true"/>
+    <property name="frequency" type="int" value="1000"/>
+    <property name="health" type="int" value="0"/>
+    <property name="solid" type="bool" value="true"/>
+    <property name="speed" type="float" value="1"/>
+    <property name="target" type="object" value="248"/>
+   </properties>
+  </object>
+  <object id="248" x="576" y="288">
+   <point/>
+  </object>
+  <object id="249" name="checkpoint" x="3040" y="608" width="32" height="64">
+   <properties>
+    <property name="solid" type="bool" value="true"/>
+   </properties>
+  </object>
+  <object id="250" name="checkpoint" x="3040" y="288" width="32" height="64">
+   <properties>
+    <property name="solid" type="bool" value="true"/>
+   </properties>
+  </object>
+  <object id="251" name="checkpoint" x="4928" y="192" width="32" height="64">
+   <properties>
+    <property name="solid" type="bool" value="true"/>
+   </properties>
+  </object>
+  <object id="252" name="checkpoint" x="4960" y="640" width="32" height="64">
+   <properties>
+    <property name="solid" type="bool" value="true"/>
+   </properties>
+  </object>
+  <object id="253" name="checkpoint" x="7072" y="448" width="32" height="64">
+   <properties>
+    <property name="solid" type="bool" value="true"/>
+   </properties>
+  </object>
+  <object id="256" type="Teleport" x="10816" y="448" width="32" height="160">
+   <properties>
+    <property name="playerLocation" type="object" value="0"/>
    </properties>
   </object>
  </objectgroup>

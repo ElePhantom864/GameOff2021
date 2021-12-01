@@ -192,7 +192,7 @@ Wasp_Attacks = {
 # General Properties
 HEALTH = 1000
 PLAYER_STUN = 30
-PIT_DAMAGE = 20
+PIT_DAMAGE = 50
 BUGS = {
     'Parasite': {
         'ACC': 0.5,
